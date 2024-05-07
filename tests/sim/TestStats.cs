@@ -29,4 +29,11 @@ public class TestStats
         mockRandom.Setup(rand => rand.NextDouble()).Returns(0.6);
         Assert.Equal(state.GetNextState(), stateC);
     }
+
+    [Fact]
+    public void testGetNextStateWithEmptyTransitions()
+    {
+        State state = new State("A");
+        Assert.Throws<InvalidOperationException>(() => state.GetNextState());
+    }
 }

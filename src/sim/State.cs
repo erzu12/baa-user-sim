@@ -26,6 +26,6 @@ public class State {
                 return transition.Key;
             }
         }
-        return Transitions.Keys.Last();
+        throw new InvalidOperationException("No transition found");
     }
 }
