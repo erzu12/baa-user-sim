@@ -3,10 +3,12 @@ namespace sim;
 using System.Collections.Generic;
 
 public class State {
-    private string Name { get; set; }
-    private Dictionary<State, double> Transitions { get; set; }
+    private string Name;
+    private Dictionary<State, double> Transitions;
+    private Random RNG;
 
-    public State(string name) {
+    public State(string name, Random? rng = default(Random)) {
+        RNG = rng ?? new Random();
         Name = name;
         Transitions = new Dictionary<State, double>();
     }
@@ -16,7 +18,7 @@ public class State {
     }
 
     public State GetNextState() {
-        double randomValue = new Random().NextDouble();
+        double randomValue = RNG.NextDouble();
         double sum = 0;
         foreach (var transition in Transitions) {
             sum += transition.Value;
