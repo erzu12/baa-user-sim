@@ -12,3 +12,4 @@ artifacts/
 coveragereport/
 **/TestResults/
 chain.json
+\\

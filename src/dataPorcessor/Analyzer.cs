@@ -29,23 +29,30 @@ public class State
 public class Analyzer
 {
     public Dictionary<EventName, State> States { get; } = new Dictionary<EventName, State>();
+    private EventName? _firstState;
     private State? _currentState;
 
     public void Analyze(Event[] events)
     {
         foreach (Event e in events)
         {
-            if (_currentState == null)
-            {
-                _currentState = new State(e.EventName);
-                States.Add(e.EventName, _currentState);
-            }
-            else
-            {
-                _currentState.AddTransition(e.EventName);
-                _currentState = SetState(e.EventName);
+            if(e.EventName != EventName.StartUpEvent) {
+                if (_currentState == null)
+                {
+                    _currentState = new State(e.EventName);
+                    States.Add(e.EventName, _currentState);
+                    _firstState = e.EventName;
+                }
+                else
+                {
+                    _currentState.AddTransition(e.EventName);
+                    _currentState = SetState(e.EventName);
+                }
             }
         }
+
+        _currentState = SetState(EventName.StartUpEvent);
+        _currentState.AddTransition(_firstState ?? EventName.StartUpEvent);
     }
 
     private State SetState(EventName name)
