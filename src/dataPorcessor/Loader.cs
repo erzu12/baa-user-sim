@@ -4,6 +4,38 @@ using System.Text.Json.Serialization;
 
 namespace dataProcessor;
 
+public enum Language
+{
+    C,
+    Cpp,
+    CSharp,
+    Java,
+    Python,
+    JavaScript,
+    TypeScript,
+    HTML,
+    CSS,
+    SQL,
+    Ruby,
+    PHP,
+    Swift,
+    Kotlin,
+    Go,
+    Rust,
+    Scala,
+    Perl,
+    R,
+    Shell,
+    Other,
+}
+
+public class SessionEvents
+{
+    public Event[] Events { get; set; }
+    public Language Language { get; set; }
+    public int LinesOfCode { get; set; }
+}
+
 public class Loader
 {
     private readonly IFileSystem _fileSystem;
@@ -26,7 +58,6 @@ public class Loader
         text = text.Replace("\n", "\\n");
         text = text.Replace("},\\n{", "},\n{");
 
-        Console.WriteLine(text);
         var options = new JsonSerializerOptions
         {
             Converters = { new JsonStringEnumConverter()},
