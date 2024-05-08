@@ -74,6 +74,13 @@ public class Event
     public GitChange? GitChange { get; set; }
     public ProjectInfo? ProjectInfo { get; set; }
 
+    public Event() { }
+
+    public Event(EventName eventName)
+    {
+        EventName = eventName;
+    }
+
 
     public override string ToString()
     {
