@@ -29,7 +29,7 @@ public class State {
         Transitions.Add(state, probability);
     }
 
-    public State GetNextState() {
+    public State? GetNextState() {
         double randomValue = RNG.NextDouble();
         double sum = 0;
         foreach (var transition in Transitions) {
@@ -38,6 +38,6 @@ public class State {
                 return transition.Key;
             }
         }
-        throw new InvalidOperationException("No transition found");
+        return null;
     }
 }

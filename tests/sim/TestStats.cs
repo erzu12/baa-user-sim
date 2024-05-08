@@ -34,6 +34,6 @@ public class TestStats
     public void testGetNextStateWithEmptyTransitions()
     {
         State state = new State(EventName.DocumentChangeEvent);
-        Assert.Throws<InvalidOperationException>(() => state.GetNextState());
+        Assert.Null(state.GetNextState());
     }
 }

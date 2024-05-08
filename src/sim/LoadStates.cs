@@ -7,7 +7,7 @@ namespace sim;
 class StateDTO
 {
     public EventName Name { get; set; }
-    public Dictionary<EventName, double> Transitions { get; set; }
+    public Dictionary<EventName, double> Transitions { get; set; } = new Dictionary<EventName, double>();
 
     override public string ToString()
     {
