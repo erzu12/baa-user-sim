@@ -2,12 +2,24 @@ namespace sim;
 
 using System.Collections.Generic;
 
+public enum EventName
+{
+    DocumentOpenEvent,
+    DocumentChangeEvent,
+    DocumentCloseEvent,
+    DocumentSaveEvent,
+    StartUpEvent,
+    GitEvent,
+    RunEvent,
+}
+
+
 public class State {
-    private string Name;
+    public EventName Name { get; }
     private Dictionary<State, double> Transitions;
     private Random RNG;
 
-    public State(string name, Random? rng = default(Random)) {
+    public State(EventName name, Random? rng = default(Random)) {
         RNG = rng ?? new Random();
         Name = name;
         Transitions = new Dictionary<State, double>();

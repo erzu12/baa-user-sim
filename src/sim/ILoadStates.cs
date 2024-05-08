@@ -2,5 +2,5 @@ namespace sim;
 
 interface ILoadStates
 {
-    State Load();
+    State Load(string path);
 }

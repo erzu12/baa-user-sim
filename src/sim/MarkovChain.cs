@@ -3,8 +3,8 @@ namespace sim;
 class MarkovChain {
     private State CurrentState;
 
-    public MarkovChain(ILoadStates loader) {
-        CurrentState = loader.Load();
+    public MarkovChain(ILoadStates loader, string path) {
+        CurrentState = loader.Load(path);
     }
 
     public void Step() {
