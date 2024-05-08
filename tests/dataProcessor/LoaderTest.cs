@@ -7,7 +7,7 @@ using System.IO.Abstractions;
 
 public class TestLoader {
 
-    private readonly string _testEvent = "[{\"EventName\":\"DocumentChangeEvent\",\"eventTime\":1715086246152,\"sessionId\":\"41143742-82a2-4955-b16d-78d61048b6091715085535824\",\"MachineId\":\"6dc582831b8d88e52c3c496117591e7c67ab54528dff6018895d4871bdd18f85\",\"documentUri\":\"file:///media/ssd2/dev/HSLU/rt/src/scene.h\",\"documentId\":2,\"operation\":\"add\",\"changeOperation\":{\"text\":\"a\",\"rangeOffset\":\"841\",\"rangeLength\":\"0\",\"rangestart_line\":\"31\",\"rangestart_character\":\"28\",\"rangeend_line\":\"31\",\"rangeend_character\":\"28\"}}]";
+    private readonly string _testEvent = "{\"EventName\":\"DocumentChangeEvent\",\"eventTime\":1715086246152,\"sessionId\":\"41143742-82a2-4955-b16d-78d61048b6091715085535824\",\"MachineId\":\"6dc582831b8d88e52c3c496117591e7c67ab54528dff6018895d4871bdd18f85\",\"documentUri\":\"file:///media/ssd2/dev/HSLU/rt/src/scene.h\",\"documentId\":2,\"operation\":\"add\",\"changeOperation\":{\"text\":\"a\",\"rangeOffset\":\"841\",\"rangeLength\":\"0\",\"rangestart_line\":\"31\",\"rangestart_character\":\"28\",\"rangeend_line\":\"31\",\"rangeend_character\":\"28\"}},\n";
 
     [Fact]
     public void TestLoad() {

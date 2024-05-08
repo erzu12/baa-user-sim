@@ -11,3 +11,4 @@ artifacts/
 *.sln.ide
 coveragereport/
 **/TestResults/
+chain.json

@@ -18,9 +18,13 @@ public class Loader
     public Event[] Load(string path)
     {
         string text = _fileSystem.File.ReadAllText(path);
-        text.Insert(0, "[");
-        text.Remove(text.Length - 1, 1);
-        text.Insert(text.Length, "]");
+        text = text.Insert(0, "[");
+        text = text.Remove(text.Length - 2, 2);
+        text = text.Insert(text.Length, "]");
+
+        // Fix messed up JSON
+        text = text.Replace("\n", "\\n");
+        text = text.Replace("},\\n{", "},\n{");
 
         Console.WriteLine(text);
         var options = new JsonSerializerOptions
