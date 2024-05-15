@@ -5,6 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <StartupObject>sim.Program</StartupObject> <!-- Specify the entry point here -->
   </PropertyGroup>
 
   <ItemGroup>

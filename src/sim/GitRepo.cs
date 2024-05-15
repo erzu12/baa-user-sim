@@ -18,7 +18,9 @@ class GitRepo
         {
             using (var repo = new Repository(_path))
             {
+                ResetHard();
                 Commands.Fetch(repo, "origin", new string[0], null, null);
+                Commands.Checkout(repo, repo.Branches["origin/main"], new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
             }
         }
         else
@@ -42,7 +44,15 @@ class GitRepo
         }
     }
 
-    public void FindCommitOfSize(int minSize, int maxSize)
+    public void ResetHard()
+    {
+        using (var repo = new Repository(_path))
+        {
+            Commands.Checkout(repo, repo.Head.Tip, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+        }
+    }
+
+    public List<FileDiff> FindCommitOfSize(int minSize, int maxSize)
     {
         using (var repo = new Repository(_path))
         {
@@ -52,22 +62,13 @@ class GitRepo
                 Console.WriteLine($"Commit {commit.MessageShort} has {summary.LinesAdded} lines added and {summary.LinesDeleted} lines deleted");
                 if (summary.LinesAdded >= minSize && summary.LinesAdded <= maxSize)
                 {
-                    var FileDiffs = new GitDiff(_path, commit.Parents.First().Sha, commit.Sha).Full();
-                    foreach (var fileDiff in FileDiffs)
-                    {
-                        Console.WriteLine($"File: {fileDiff.File}");
-                        foreach (var line in fileDiff.LinesAdded)
-                        {
-                            Console.WriteLine($"+{line.Key}: {line.Value.LineNumber}, {line.Value.Content}");
-                        }
-                        foreach (var line in fileDiff.LinesDeleted)
-                        {
-                            Console.WriteLine($"-{line.Key}: {line.Value.LineNumber}, {line.Value.Content}");
-                        }
-                    }
-                    return;
+                    string parentSha = commit.Parents.First().Sha;
+                    var FileDiffs = new GitDiff(_path, parentSha, commit.Sha).Full();
+                    goToCommit(parentSha);
+                    return FileDiffs;
                 }
             }
         }
+        return new List<FileDiff>();
     }
 }

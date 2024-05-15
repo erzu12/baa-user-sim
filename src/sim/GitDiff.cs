@@ -8,17 +8,34 @@ public class FileDiff
     public string File { get; set; }
     public Dictionary<int, Line> LinesAdded { get; set; }
     public Dictionary<int, Line> LinesDeleted { get; set; }
+    private int _currentRemovedLine = 0;
+    private int _currentAddedLine = 0;
 
     public class Line
     {
-        public int LineNumber { get; set; }
-        public string Content { get; set; }
+        public int LineNumber { get; set; } = 0;
+        public string Content { get; set; } = "";
+        private int _currentChar = 0;
 
         public Line(int lineNumber, string content)
         {
             LineNumber = lineNumber;
             Content = content;
         }
+        
+        public char? GetNextChar()
+        {
+            if (_currentChar < Content.Length)
+            {
+                return Content[_currentChar++];
+            }
+            return null;
+        }
+    }
+
+    public int GetCharAddedCount()
+    {
+        return LinesAdded.Sum(x => x.Value.Content.Length);
     }
 
     public FileDiff(string file)
@@ -27,6 +44,47 @@ public class FileDiff
         LinesAdded = new Dictionary<int, Line>();
         LinesDeleted = new Dictionary<int, Line>();
 
+    }
+
+    private void updatedLineNumbers(int shift)
+    {
+        foreach (var line in LinesAdded.Where(x => x.Key > _currentAddedLine).OrderBy(x => x.Key))
+        {
+            Console.WriteLine("shifting " + line.Value.LineNumber + " " + shift);
+            line.Value.LineNumber += shift;
+        }
+        foreach (var line in LinesDeleted.Where(x => x.Key > _currentRemovedLine).OrderBy(x => x.Key))
+        {
+            line.Value.LineNumber += shift;
+        }
+    }
+
+    public Line? GetAddedLine()
+    {
+        foreach (var line in LinesAdded.OrderBy(x => x.Key))
+        {
+            if (line.Key > _currentAddedLine)
+            {
+                _currentAddedLine = line.Key;
+                updatedLineNumbers(1);
+                return line.Value;
+            }
+        }
+        return null;
+    }
+
+    public int GetRemovedLine()
+    {
+        foreach (var line in LinesDeleted.OrderBy(x => x.Key))
+        {
+            if (line.Key > _currentRemovedLine)
+            {
+                _currentRemovedLine = line.Key;
+                updatedLineNumbers(-1);
+                return line.Key;
+            }
+        }
+        return -1;
     }
 }
 
@@ -70,10 +128,14 @@ class GitDiff
                 process.WaitForExit();
 
                 var lastLine = output.Split('\n')[^2];
+                var delStr = Regex.Match(lastLine, ".* ([0-9]*) deletions").Groups[1]?.Value;
+                var addStr = Regex.Match(lastLine, ".* ([0-9]*) insertions").Groups[1]?.Value;
+                int deletions = string.IsNullOrEmpty(delStr) ? 0 : int.Parse(delStr);
+                int additions = string.IsNullOrEmpty(addStr) ? 0 : int.Parse(addStr);
                 var Summery = new Summery
                 {
-                    LinesAdded = int.Parse(lastLine.Split(',')[1].Split(' ')[1]),
-                    LinesDeleted = int.Parse(lastLine.Split(',')[2].Split(' ')[1])
+                    LinesAdded = additions,
+                    LinesDeleted = additions
                 };
                 return Summery;
             }
@@ -124,12 +186,13 @@ class GitDiff
                     if (line.StartsWith("+") && !line.StartsWith("+++"))
                     {
                         Console.WriteLine(line);
-                        fileDiffList[^1].LinesAdded.Add(additonsInBlock + newStartLine, new FileDiff.Line(additonsInBlock + oldStartLine, line.Remove(0, 1)));
+                        fileDiffList[^1].LinesAdded.Add(additonsInBlock + newStartLine, new FileDiff.Line(oldStartLine, line.Remove(0, 1)));
                         additonsInBlock++;
                     }
                     if (line.StartsWith("-") && !line.StartsWith("---"))
                     {
-                        fileDiffList[^1].LinesDeleted.Add(deletionsInBlock + newStartLine, new FileDiff.Line(deletionsInBlock + oldStartLine, line.Remove(0, 1)));
+                        Console.WriteLine(line);
+                        fileDiffList[^1].LinesDeleted.Add(deletionsInBlock + newStartLine, new FileDiff.Line(oldStartLine, line.Remove(0, 1)));
                         deletionsInBlock++;
                     }
                 }
