@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace sim;
 
 class Document
@@ -5,6 +7,7 @@ class Document
     public string Path { get; set; }
     public List<string> Content { get; set; }
     public FileDiff Diff { get; set; }
+    private IIDEService _ideService;
 
     public Document(string repoDir, FileDiff diff)
     {
@@ -25,7 +28,7 @@ class Document
         while (true)
         {
             int currentRemoveLine = Diff.GetRemovedLine();
-            if (currentRemoveLine == -1)
+            if (currentRemoveLine < 0)
             {
                 break;
             }
@@ -58,6 +61,16 @@ class Document
                 }
             }
         }
+    }
+
+    private byte[] ContentAsBytes()
+    {
+        return Encoding.UTF8.GetBytes(string.Join("\n", Content));
+    }
+
+    private void ContentFromBytes(byte[] bytes)
+    {
+        Content = Encoding.UTF8.GetString(bytes).Split('\n').ToList();
     }
 
     public override string ToString()

@@ -46,15 +46,16 @@ public class FileDiff
 
     }
 
-    private void updatedLineNumbers(int shift)
+    private void updatedLineNumbers(int shift, int fromLine)
     {
-        foreach (var line in LinesAdded.Where(x => x.Key > _currentAddedLine).OrderBy(x => x.Key))
+        foreach (var line in LinesAdded.Where(x => x.Value.LineNumber > fromLine).OrderBy(x => x.Key))
         {
-            Console.WriteLine("shifting " + line.Value.LineNumber + " " + shift);
+            Console.WriteLine("shifting added: " + line.Value.LineNumber + " " + shift);
             line.Value.LineNumber += shift;
         }
-        foreach (var line in LinesDeleted.Where(x => x.Key > _currentRemovedLine).OrderBy(x => x.Key))
+        foreach (var line in LinesDeleted.Where(x => x.Value.LineNumber > fromLine).OrderBy(x => x.Key))
         {
+            Console.WriteLine("shifting deleted: " + line.Value.LineNumber + " " + shift);
             line.Value.LineNumber += shift;
         }
     }
@@ -66,7 +67,7 @@ public class FileDiff
             if (line.Key > _currentAddedLine)
             {
                 _currentAddedLine = line.Key;
-                updatedLineNumbers(1);
+                updatedLineNumbers(1, line.Value.LineNumber);
                 return line.Value;
             }
         }
@@ -80,8 +81,8 @@ public class FileDiff
             if (line.Key > _currentRemovedLine)
             {
                 _currentRemovedLine = line.Key;
-                updatedLineNumbers(-1);
-                return line.Key;
+                updatedLineNumbers(-1, line.Value.LineNumber);
+                return line.Value.LineNumber;
             }
         }
         return -1;
@@ -179,8 +180,8 @@ class GitDiff
                     if (line.StartsWith("@@"))
                     {
                         Console.WriteLine(line);
-                        oldStartLine = int.Parse(Regex.Match(line, ".*-([0-9]*)").Groups[1].Value);
-                        newStartLine = int.Parse(Regex.Match(line, ".*\\+([0-9]*)").Groups[1].Value);
+                        oldStartLine = int.Parse(Regex.Match(line, ".*-([0-9]*)").Groups[1].Value) - 1;
+                        newStartLine = int.Parse(Regex.Match(line, ".*\\+([0-9]*)").Groups[1].Value) - 1;
                         additonsInBlock = deletionsInBlock = 0;
                     }
                     if (line.StartsWith("+") && !line.StartsWith("+++"))
@@ -192,7 +193,7 @@ class GitDiff
                     if (line.StartsWith("-") && !line.StartsWith("---"))
                     {
                         Console.WriteLine(line);
-                        fileDiffList[^1].LinesDeleted.Add(deletionsInBlock + newStartLine, new FileDiff.Line(oldStartLine, line.Remove(0, 1)));
+                        fileDiffList[^1].LinesDeleted.Add(deletionsInBlock + oldStartLine, new FileDiff.Line(oldStartLine, line.Remove(0, 1)));
                         deletionsInBlock++;
                     }
                 }

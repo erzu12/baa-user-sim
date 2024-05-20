@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcWorkDir";
+
+package workdir;
+
+// The working directory service definition.
+service WorkDirService {
+  rpc StartNewWorkDir (StartNewWorkDirRequest) returns (StartNewWorkDirReply);
+  rpc GetFiles (GetFilesRequest) returns (GetFilesReply);
+  rpc LoadFile (LoadFileRequest) returns (LoadFileReply);
+  rpc UpdateFile (UpdateFileRequest) returns (EmptyReply);
+  rpc CommitChanges (CommitChangesRequest) returns (EmptyReply);
+}
+
+// Common
+message NoParametersRequest { }
+message EmptyReply { }
+
+// StartNewWorkDir
+message StartNewWorkDirRequest {
+	string description = 1;
+	string repoUrl = 2;
+	string branch = 3;
+}
+
+message StartNewWorkDirReply {
+	string id = 1;
+}
+
+// GetFiles
+message GetFilesRequest {
+	string workDirId = 1;
+}
+
+message GetFilesReply {
+	repeated FileRevision files = 1;
+}
+
+message FileRevision {
+	string filePath = 1;
+	int32 revisionNumber = 2;
+}
+
+// LoadFile
+message LoadFileRequest {
+	string workDirId = 1;
+	string filePath = 2;
+}
+
+message LoadFileReply {
+	string filePath = 1;
+	bytes content = 2;
+}
+
+// UpdateFile
+message UpdateFileRequest {
+	string workDirId = 1;
+	string filePath = 2;
+	bytes updatedContent = 3;
+}
+
+// CommitChanges
+message CommitChangesRequest {
+	string workDirId = 1;
+	string commitMessage = 2;
+}

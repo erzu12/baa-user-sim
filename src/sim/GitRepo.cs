@@ -56,7 +56,7 @@ class GitRepo
     {
         using (var repo = new Repository(_path))
         {
-            foreach (var commit in repo.Commits.Take(10))
+            foreach (var commit in repo.Commits.Skip(1).Take(30))
             {
                 var summary = new GitDiff(_path, commit.Parents.First().Sha, commit.Sha).CreateSummary();
                 Console.WriteLine($"Commit {commit.MessageShort} has {summary.LinesAdded} lines added and {summary.LinesDeleted} lines deleted");
