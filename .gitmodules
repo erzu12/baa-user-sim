@@ -1,0 +1,3 @@
+[submodule "distributed-ide"]
+	path = distributed-ide
+	url = https://github.com/Tschouns/distributed-ide.git

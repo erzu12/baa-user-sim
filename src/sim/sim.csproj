@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\distributed-ide\src\DevEnv\DevEnv.WorkDir.Client\DevEnv.WorkDir.Client.csproj" />
+  <ProjectReference Include="..\..\distributed-ide\src\DevEnv\DevEnv.WorkDir.Client\DevEnv.WorkDir.Client.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 namespace sim;
 
 using DevEnv.WorkDir.Client;
+using DevEnv.Base.Settings;
 
 
 public class IDEService : IIDEService {
@@ -8,9 +9,12 @@ public class IDEService : IIDEService {
     private IWorkDirService _workDirService;
 
     IDEService() {
-        Settings settings = new Settings();
-        settings.WorkDirServiceAddress = "http://localhost:5188";
-        _workDirService = new RemoteWorkDirService(settings);
+        InMemorySettingsProvider<ISettings> settingsProvider = new InMemorySettingsProvider<ISettings>(() => {
+            var settings = new Settings();
+            settings.WorkDirServiceAddress = "http://localhost:5188";
+            return settings;
+        });
+        _workDirService = new RemoteWorkDirService(settingsProvider);
     }
 
     public void setWorkingDirectory(string workDirId) {
