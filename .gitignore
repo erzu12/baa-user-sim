@@ -13,3 +13,5 @@ coveragereport/
 **/TestResults/
 chain.json
 \\
+.vscode/
+test_repo/

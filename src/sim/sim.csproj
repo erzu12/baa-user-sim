@@ -17,7 +17,7 @@
     </PackageReference>
     <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
     <PackageReference Include="System.IO.Abstractions" Version="21.0.2" />
-    <Protobuf Include="../../Protos/workdir.proto" GrpcServices="Client" />
+    <Protobuf Include="../../distributed-ide/Protos/workdir.proto" GrpcServices="Client" />
   </ItemGroup>
 
   <ItemGroup>

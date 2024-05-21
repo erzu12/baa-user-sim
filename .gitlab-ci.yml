@@ -22,8 +22,6 @@ variables:
   # NOTE: Please edit this path so it matches the structure of your project!
   SOURCE_CODE_PATH: '*/'
 
-  GIT_SUBMODULE_STRATEGY: recursive
-
 # ### Define global cache rule
 #
 # Before building the project, all dependencies (e.g. third-party NuGet packages)
@@ -91,7 +89,6 @@ build:
   # where it is located (e.g. 'dotnet build ./src/ConsoleApp').
   # Only one project path can be passed as a parameter to 'dotnet build' command.
   script:
-    - 'mv distributed-ide/Protos distributed-ide/protos'
     - 'dotnet build --no-restore'
 
 tests:
