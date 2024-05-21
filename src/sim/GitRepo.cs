@@ -16,6 +16,7 @@ class GitRepo
         Console.WriteLine("Updating repository");
         if(Directory.Exists(_path))
         {
+            Console.WriteLine("Repository exists at: " + _path);
             using (var repo = new Repository(_path))
             {
                 ResetHard();
@@ -25,13 +26,15 @@ class GitRepo
         }
         else
         {
-            Repository.Clone(url, _path);
+            Console.WriteLine("No repository");
+            //Repository.Clone(url, _path);
         }
         Console.WriteLine("done");
     }
 
     public void goToCommit(string commitSha)
     {
+        Console.WriteLine($"Checking out commit {commitSha}");
         using (var repo = new Repository(_path))
         {
             var commit = repo.Lookup<Commit>(commitSha);
@@ -56,7 +59,7 @@ class GitRepo
     {
         using (var repo = new Repository(_path))
         {
-            foreach (var commit in repo.Commits.Skip(1).Take(30))
+            foreach (var commit in repo.Commits.Skip(1).Take(200))
             {
                 var summary = new GitDiff(_path, commit.Parents.First().Sha, commit.Sha).CreateSummary();
                 Console.WriteLine($"Commit {commit.MessageShort} has {summary.LinesAdded} lines added and {summary.LinesDeleted} lines deleted");

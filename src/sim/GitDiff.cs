@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 public class FileDiff
 {
     public string File { get; set; }
+    public bool IsAdded { get; set; }
     public Dictionary<int, Line> LinesAdded { get; set; }
     public Dictionary<int, Line> LinesDeleted { get; set; }
     private int _currentRemovedLine = 0;
@@ -38,9 +39,10 @@ public class FileDiff
         return LinesAdded.Sum(x => x.Value.Content.Length);
     }
 
-    public FileDiff(string file)
+    public FileDiff(string file, bool isAdded)
     {
         File = file;
+        IsAdded = isAdded;
         LinesAdded = new Dictionary<int, Line>();
         LinesDeleted = new Dictionary<int, Line>();
 
@@ -50,12 +52,10 @@ public class FileDiff
     {
         foreach (var line in LinesAdded.Where(x => x.Value.LineNumber > fromLine).OrderBy(x => x.Key))
         {
-            Console.WriteLine("shifting added: " + line.Value.LineNumber + " " + shift);
             line.Value.LineNumber += shift;
         }
         foreach (var line in LinesDeleted.Where(x => x.Value.LineNumber > fromLine).OrderBy(x => x.Key))
         {
-            Console.WriteLine("shifting deleted: " + line.Value.LineNumber + " " + shift);
             line.Value.LineNumber += shift;
         }
     }
@@ -169,19 +169,25 @@ class GitDiff
                 int deletionsInBlock = 0;
                 int oldStartLine = 0;
                 int newStartLine = 0;
+                bool isAdded = false;
 
                 var lines = output.Split('\n');
                 foreach (var line in lines)
                 {
                     if (line.StartsWith("---")) {
+                        isAdded = line.Contains("dev/null");
+                    }
+                    if (line.StartsWith("+++")) {
                         var fileName = line.Split(' ')[1].Remove(0, 2);
-                        fileDiffList.Add(new FileDiff(fileName));
+                        fileDiffList.Add(new FileDiff(fileName, isAdded));
                     }
                     if (line.StartsWith("@@"))
                     {
                         Console.WriteLine(line);
                         oldStartLine = int.Parse(Regex.Match(line, ".*-([0-9]*)").Groups[1].Value) - 1;
                         newStartLine = int.Parse(Regex.Match(line, ".*\\+([0-9]*)").Groups[1].Value) - 1;
+                        oldStartLine = oldStartLine < 0 ? 0 : oldStartLine;
+                        newStartLine = newStartLine < 0 ? 0 : newStartLine;
                         additonsInBlock = deletionsInBlock = 0;
                     }
                     if (line.StartsWith("+") && !line.StartsWith("+++"))

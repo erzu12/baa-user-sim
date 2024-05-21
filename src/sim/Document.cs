@@ -9,16 +9,18 @@ class Document
     public FileDiff Diff { get; set; }
     private IIDEService _ideService;
 
-    public Document(string repoDir, FileDiff diff)
+    public Document(string repoDir, FileDiff diff, IIDEService ideService)
     {
+        _ideService = ideService;
         Path = repoDir + "/" + diff.File;
         Diff = diff;
-        using (var reader = new StreamReader(Path))
+        Console.WriteLine(Path);
+        if (diff.IsAdded)
         {
-            var strContent = reader.ReadToEnd();
-            Content = strContent.Split('\n').ToList();
+            System.IO.File.WriteAllLines(Path, new string[0]);
         }
-        Console.WriteLine(this);
+        var docBytes = _ideService.LoadFile(Path);
+        Content = ContentFromBytes(docBytes);
     }
 
     public void RunEvents(MarkovChain chain)
@@ -32,7 +34,6 @@ class Document
             {
                 break;
             }
-            Console.WriteLine("Removing line " + currentRemoveLine);
             Content.RemoveAt(currentRemoveLine);
         }
         FileDiff.Line? currentLine = Diff.GetAddedLine();
@@ -45,6 +46,11 @@ class Document
                 var c = currentLine?.GetNextChar();
                 if (c == null) {
                     currentLine = Diff.GetAddedLine();
+                    if (currentLine == null)
+                    {
+                        Console.WriteLine("No more lines");
+                        break;
+                    }
                     Content.Insert(currentLine!.LineNumber, "");
                     c = currentLine?.GetNextChar();
                 }
@@ -54,10 +60,7 @@ class Document
             {
                 using (var writer = new StreamWriter(Path))
                 {
-                    foreach (var line in Content)
-                    {
-                        writer.WriteLine(line);
-                    }
+                    _ideService.UpdateFile(Path, ContentAsBytes());
                 }
             }
         }
@@ -68,9 +71,9 @@ class Document
         return Encoding.UTF8.GetBytes(string.Join("\n", Content));
     }
 
-    private void ContentFromBytes(byte[] bytes)
+    private List<string> ContentFromBytes(byte[] bytes)
     {
-        Content = Encoding.UTF8.GetString(bytes).Split('\n').ToList();
+        return Encoding.UTF8.GetString(bytes).Split('\n').ToList();
     }
 
     public override string ToString()

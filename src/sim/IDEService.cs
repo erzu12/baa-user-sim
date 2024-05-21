@@ -8,7 +8,7 @@ public class IDEService : IIDEService {
     private string _workDirId = "{b051c1f8-89b7-4a2f-89da-5c49ae027ac4}";
     private IWorkDirService _workDirService;
 
-    IDEService() {
+    public IDEService() {
         InMemorySettingsProvider<ISettings> settingsProvider = new InMemorySettingsProvider<ISettings>(() => {
             var settings = new Settings();
             settings.WorkDirServiceAddress = "http://localhost:5188";
@@ -23,7 +23,7 @@ public class IDEService : IIDEService {
 
     public string GetWorkingDirectory() {
         var dataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var workDirPath = Path.Combine(dataDir, _workDirId);
+        var workDirPath = Path.Combine(dataDir, "DevEnv.WorkDir.Service", _workDirId);
         return workDirPath;
     }
 
