@@ -1,6 +1,7 @@
 ﻿namespace sim;
 
 using System.Threading.Tasks;
+using GrpcBuild;
 
 class Program
 {
@@ -31,6 +32,10 @@ class Program
         foreach (var doc in docs) {
             doc.RunEvents(chain);
         }
+        Thread.Sleep(1000);
+        repo.ResetHard();
+        Thread.Sleep(1000);
+        ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
         PrintTotalDiffSize(Diffs);
     }
 

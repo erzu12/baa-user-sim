@@ -2,11 +2,15 @@ namespace sim;
 
 using DevEnv.WorkDir.Client;
 using DevEnv.Base.Settings;
-
+using DevEnv.Build.Client;
+using Settings = DevEnv.WorkDir.Client.Settings;
+using ISettings = DevEnv.WorkDir.Client.ISettings;
+using GrpcBuild;
 
 public class IDEService : IIDEService {
     private string _workDirId = "{b051c1f8-89b7-4a2f-89da-5c49ae027ac4}";
     private IWorkDirService _workDirService;
+    private IBuildService _buildService;
 
     public IDEService() {
         InMemorySettingsProvider<ISettings> settingsProvider = new InMemorySettingsProvider<ISettings>(() => {
@@ -15,6 +19,12 @@ public class IDEService : IIDEService {
             return settings;
         });
         _workDirService = new RemoteWorkDirService(settingsProvider);
+        InMemorySettingsProvider<DevEnv.Build.Client.ISettings> buildSettingsProvider = new InMemorySettingsProvider<DevEnv.Build.Client.ISettings>(() => {
+            var settings = new DevEnv.Build.Client.Settings();
+            settings.BuildServiceAddress = "http://localhost:5288";
+            return settings;
+        });
+        _buildService = new RemoteBuildService(buildSettingsProvider);
     }
 
     public void setWorkingDirectory(string workDirId) {
@@ -49,6 +59,12 @@ public class IDEService : IIDEService {
     public void CommitChanges(string commitMessage) {
         var task = _workDirService.CommitChanges(_workDirId, commitMessage);
         task.Wait();
+    }
+
+    public BuildResult Build(BuildSystem buildSystem, string path) {
+        var task = _buildService.Build(_workDirId, buildSystem, path);
+        task.Wait();
+        return task.Result;
     }
 
 }

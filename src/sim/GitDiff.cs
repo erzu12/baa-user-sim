@@ -50,7 +50,7 @@ public class FileDiff
 
     private void updatedLineNumbers(int shift, int fromLine)
     {
-        foreach (var line in LinesAdded.Where(x => x.Value.LineNumber > fromLine).OrderBy(x => x.Key))
+        foreach (var line in LinesAdded.Where(x => x.Value.LineNumber >= fromLine).OrderBy(x => x.Key))
         {
             line.Value.LineNumber += shift;
         }

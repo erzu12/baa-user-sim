@@ -1,4 +1,5 @@
 using System.Text;
+using GrpcBuild;
 
 namespace sim;
 
@@ -40,7 +41,7 @@ class Document
         Content.Insert(currentLine!.LineNumber, "");
         foreach (var e in events)
         {
-            //Console.WriteLine(e + ", " + currentLine?.LineNumber);
+            Console.WriteLine(e);
             if(e == EventName.DocumentChangeEvent)
             {
                 var c = currentLine?.GetNextChar();
@@ -62,6 +63,9 @@ class Document
                 {
                     _ideService.UpdateFile(Path, ContentAsBytes());
                 }
+            }
+            if(e == EventName.RunEvent) {
+                _ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
             }
         }
     }

@@ -51,6 +51,7 @@ class GitRepo
     {
         using (var repo = new Repository(_path))
         {
+            Commands.Stage(repo, "*");
             Commands.Checkout(repo, repo.Head.Tip, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
         }
     }

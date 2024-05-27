@@ -1,5 +1,7 @@
 namespace sim;
 
+using DevEnv.Build.Client;
+using GrpcBuild;
 
 interface IIDEService
 {
@@ -52,6 +54,23 @@ interface IIDEService
     /// </returns>
     void CommitChanges(string commitMessage);
 
+
+    /// <summary>
+    /// Builds the specified .NET solution from the specified working directory.
+    /// </summary>
+    /// <param name="workDirId">
+    /// The working directory ID
+    /// </param>
+    /// <param name="buildSystem">
+    /// The build system
+    /// </param>
+    /// <param name="rootFile">
+    /// The build definition root file, as relative path within the working directory
+    /// </param>
+    /// <returns>
+    /// A build result
+    /// </returns>
+    BuildResult Build(BuildSystem buildSystem, string rootFile);
 
 }
 
