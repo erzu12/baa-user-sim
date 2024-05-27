@@ -1,4 +1,6 @@
-﻿namespace dataProcessor
+﻿using common;
+
+namespace dataProcessor
 {
     class Program
     {

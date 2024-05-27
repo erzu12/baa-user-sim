@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace dataProcessor;
 
+using common;
 
 
 class StateDTO

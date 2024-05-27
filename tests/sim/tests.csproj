@@ -25,6 +25,7 @@
 
   <ItemGroup>
   <ProjectReference Include="..\..\src\sim\sim.csproj" />
+  <ProjectReference Include="..\..\src\common\common.csproj" />
   </ItemGroup>
 
 </Project>

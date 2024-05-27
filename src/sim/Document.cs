@@ -72,6 +72,7 @@ class Document
 
     public void RunRealEvents(Event[] events)
     {
+        Console.WriteLine(events.Last().EventTime);
         foreach (var e in events.Skip(1))
         {
             var eventPath = e.DocumentUri?.ToString().Split(new string[] { _repoDirName }, StringSplitOptions.None).Last() ?? "";
@@ -79,7 +80,7 @@ class Document
             {
                 continue;
             }
-            Console.WriteLine(e.EventName + " " + e.Operation + " " + e.EventTime + "\n" + e.ChangeOperation?.text);
+            Console.WriteLine(e.EventName + " " + e.Operation + " " + e.EventTime + "\nAdding: " + e.ChangeOperation?.text);
             if (e.EventName == EventName.DocumentChangeEvent)
             {
                 if (e.ChangeOperation != null) {
@@ -88,34 +89,36 @@ class Document
                     int startChar = int.Parse(e.ChangeOperation.RangeStart_Character);
                     int endLine = int.Parse(e.ChangeOperation.RangeEnd_Line);
                     int endChar = int.Parse(e.ChangeOperation.RangeEnd_Character);
-                    Console.WriteLine(Content[startLine]);
+                    Console.WriteLine("oldline: " + Content[startLine]);
 
                     deleteInRange(startLine, startChar, endLine, endChar);
                     insertAt(startLine, startChar, toAdd);
+                    Console.WriteLine("newLine: " + Content[startLine]);
                 }
             }
             if (e.EventName == EventName.DocumentSaveEvent)
             {
                 _ideService.UpdateFile(Path, ContentAsBytes());
             }
+            //Console.ReadKey();
         }
     }
 
     private void deleteInRange(int startLine, int startChar, int endLine, int endChar)
     {
         Console.WriteLine(startLine + " " + startChar + " " + endLine + " " + endChar);
+        Console.WriteLine(Content[startLine].Length);
+        startChar = Math.Min(startChar, Content[startLine].Length);
+        endChar = Math.Min(endChar, Content[startLine].Length);
         if (startLine == endLine)
         {
-            Console.WriteLine(Content[startLine].Length);
             Content[startLine] = Content[startLine].Remove(startChar, endChar - startChar);
-            removeLineIfEmpty(startLine);
         }
         else
         {
             Content[startLine] = Content[startLine].Remove(startChar);
-            removeLineIfEmpty(startLine);
-            Content[endLine] = Content[endLine].Remove(0, endChar);
-            removeLineIfEmpty(endLine);
+            Content[startLine] += Content[endLine].Substring(endChar);
+            Content.RemoveAt(endLine);
             for (int i = startLine + 1; i < endLine; i++)
             {
                 Content.RemoveAt(startLine + 1);
@@ -133,20 +136,24 @@ class Document
 
     private void insertAt(int startLine, int startChar, string text)
     {
+        startChar = Math.Min(startChar, Content[startLine].Length);
         var lines = text.Split('\n');
         if (lines.Length == 1)
         {
+            Console.WriteLine("Inserting in line: " + text);
             Content[startLine] = Content[startLine].Insert(startChar, text);
         }
         else
         {
-            Content[startLine] = Content[startLine].Insert(startChar, lines[0]);
-            for (int i = 1; i < lines.Length; i++)
+            Console.WriteLine("Inserting multi line: " + text);
+            for (int i = 1; i < lines.Length - 1; i++)
             {
                 Content.Insert(startLine + i, lines[i]);
             }
-            //Content[startLine + lines.Length - 1] = Content[startLine].Substring(startChar);
-            //Content[startLine] = Content[startLine].Remove(startChar);
+            var lastLine = lines.Last() + Content[startLine].Substring(startChar);
+            Content.Insert(startLine + lines.Length - 1, lastLine);
+            Content[startLine] = Content[startLine].Remove(startChar);
+            Content[startLine] += lines[0];
         }
     }
 

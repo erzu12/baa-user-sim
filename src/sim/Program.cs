@@ -94,7 +94,7 @@ class Program
                 }
             }
         }
-        Console.WriteLine($"Start event: {startEvent}, End event: {endEvent}");
+        Console.WriteLine($"Start event: {events[startEvent].EventTime}, End event: {events[endEvent].EventTime}");
         return events[startEvent..endEvent];
     }
 }

@@ -184,8 +184,8 @@ class GitDiff
                     if (line.StartsWith("@@"))
                     {
                         Console.WriteLine(line);
-                        oldStartLine = int.Parse(Regex.Match(line, ".*-([0-9]*)").Groups[1].Value) - 1;
-                        newStartLine = int.Parse(Regex.Match(line, ".*\\+([0-9]*)").Groups[1].Value) - 1;
+                        oldStartLine = int.Parse(Regex.Match(line, ".*-([0-9]*).*@@").Groups[1].Value) - 1;
+                        newStartLine = int.Parse(Regex.Match(line, ".*\\+([0-9]*).*@@").Groups[1].Value) - 1;
                         oldStartLine = oldStartLine < 0 ? 0 : oldStartLine;
                         newStartLine = newStartLine < 0 ? 0 : newStartLine;
                         additonsInBlock = deletionsInBlock = 0;
