@@ -8,11 +8,11 @@ using ISettings = DevEnv.WorkDir.Client.ISettings;
 using GrpcBuild;
 
 public class IDEService : IIDEService {
-    private string _workDirId = "{b051c1f8-89b7-4a2f-89da-5c49ae027ac4}";
+    private string _workDirId;
     private IWorkDirService _workDirService;
     private IBuildService _buildService;
 
-    public IDEService() {
+    public IDEService(string workDirId) {
         InMemorySettingsProvider<ISettings> settingsProvider = new InMemorySettingsProvider<ISettings>(() => {
             var settings = new Settings();
             settings.WorkDirServiceAddress = "http://localhost:5188";
@@ -25,6 +25,7 @@ public class IDEService : IIDEService {
             return settings;
         });
         _buildService = new RemoteBuildService(buildSettingsProvider);
+        _workDirId = workDirId;
     }
 
     public void setWorkingDirectory(string workDirId) {

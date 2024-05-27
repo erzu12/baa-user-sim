@@ -1,5 +1,7 @@
 namespace sim;
 
+using common;
+
 class MarkovChain {
     public State? CurrentState { get; private set; }
 

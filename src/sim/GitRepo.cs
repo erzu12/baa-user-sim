@@ -56,23 +56,25 @@ class GitRepo
         }
     }
 
-    public List<FileDiff> FindCommitOfSize(int minSize, int maxSize)
+    public (List<FileDiff>, DateTimeOffset, DateTimeOffset) FindCommitOfSize(int minSize, int maxSize)
     {
         using (var repo = new Repository(_path))
         {
-            foreach (var commit in repo.Commits.Skip(1).Take(200))
+            foreach (var commit in repo.Commits.Skip(12).Take(200))
             {
                 var summary = new GitDiff(_path, commit.Parents.First().Sha, commit.Sha).CreateSummary();
                 Console.WriteLine($"Commit {commit.MessageShort} has {summary.LinesAdded} lines added and {summary.LinesDeleted} lines deleted");
                 if (summary.LinesAdded >= minSize && summary.LinesAdded <= maxSize)
                 {
-                    string parentSha = commit.Parents.First().Sha;
-                    var FileDiffs = new GitDiff(_path, parentSha, commit.Sha).Full();
-                    goToCommit(parentSha);
-                    return FileDiffs;
+                    var parent = commit.Parents.First();
+                    var FileDiffs = new GitDiff(_path, parent.Sha, commit.Sha).Full();
+                    goToCommit(parent.Sha);
+                    var startCommitTime = parent.Committer.When;
+                    var endCommitTime = commit.Committer.When;
+                    return (FileDiffs, startCommitTime, endCommitTime);
                 }
             }
         }
-        return new List<FileDiff>();
+        return (new List<FileDiff>(), DateTimeOffset.Now, DateTimeOffset.Now);
     }
 }

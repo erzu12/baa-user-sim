@@ -1,4 +1,4 @@
-namespace dataProcessor;
+namespace common;
 
 
 public enum EventName

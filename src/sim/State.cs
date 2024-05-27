@@ -1,17 +1,7 @@
 namespace sim;
 
 using System.Collections.Generic;
-
-public enum EventName
-{
-    DocumentOpenEvent,
-    DocumentChangeEvent,
-    DocumentCloseEvent,
-    DocumentSaveEvent,
-    StartUpEvent,
-    GitEvent,
-    RunEvent,
-}
+using common;
 
 
 public class State {
