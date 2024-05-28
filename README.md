@@ -30,6 +30,12 @@ dotnet run --project ./src/dataProcessor/dataProcessor.csproj <path-to-telemetry
 
 This application builds a Markov chain based on the parameters calculated by the Data Processor. Together with an open-source project, it can simulate the creation of a commit. To do this, it searches for a suitable commit and loads the diff between the parent commit and the commit that is to be reproduced. This diff is then applied based on events produced by the Markov chain.
 
+### Dependencies
+
+The simulation needs the client libraries for the distributed-ide. This repository maintains a separate version of this code in the `distributed-ide` folder. The reason for this is mainly some Linux compatibility issues. It also simplifies the pipeline as it doesn't need permissions to pull from a private GitHub repository.
+
+In the future, when these issues are resolved, it would be better to include it as a Git submodule or a NuGet package.
+
 ### Usage
 
 To run the simulation, use the following command:
