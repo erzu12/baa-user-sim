@@ -24,13 +24,24 @@ public class FileDiff
             Content = content;
         }
         
-        public char? GetNextChar()
+        public string? GetNextChar()
         {
+            Console.WriteLine(_currentChar);
+            _currentChar++;
+            if (_currentChar < 0)
+            {
+                return "";
+            }
             if (_currentChar < Content.Length)
             {
-                return Content[_currentChar++];
+                return Content[_currentChar].ToString();
             }
             return null;
+        }
+
+        public void RemoveChar()
+        {
+            _currentChar--;
         }
     }
 
@@ -72,6 +83,20 @@ public class FileDiff
             }
         }
         return null;
+    }
+
+    public bool RemoveAddedLine()
+    {
+        var currentLine = LinesAdded.FirstOrDefault(x => x.Value.LineNumber == _currentAddedLine);
+        updatedLineNumbers(-1, currentLine.Value.LineNumber);
+        //get previous line and set it as current
+        var line = LinesAdded.LastOrDefault(x => x.Value.LineNumber < _currentAddedLine).Key;
+        if (line != 0)
+        {
+            _currentAddedLine = line;
+            return true;
+        }
+        return false;
     }
 
     public int GetRemovedLine()

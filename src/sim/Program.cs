@@ -31,10 +31,12 @@ class Program
         Console.WriteLine(repoDir);
         var repo = new GitRepo(repoDir);
         //repo.Update("https://github.com/QuestPDF/QuestPDF.git");
+        repo.ResetToMain();
         var (Diffs, startCommitTime, endCommitTime) = repo.FindCommitOfSize(minSize, maxSize);
+        // wait for git lock to be released
 
         var loader = new LoadStates();
-        var chain = new MarkovChain(loader, "chain.json");
+        var chain = new MarkovChain(loader, "chain_b.json");
 
         var eventLoader = new Loader();
         var events = eventLoader.Load("telemetry.json");
@@ -48,11 +50,11 @@ class Program
         }
 
         foreach (var doc in docs) {
-            //doc.RunSimEvents(chain);
-            doc.RunRealEvents(events);
+            doc.RunSimEvents(chain);
+            //doc.RunRealEvents(events);
         }
-        Thread.Sleep(1000);
-        //repo.ResetHard();
+        Console.ReadKey();
+        repo.ResetHard();
         Thread.Sleep(1000);
         //ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
         PrintTotalDiffSize(Diffs);

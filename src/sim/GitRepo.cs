@@ -32,6 +32,15 @@ class GitRepo
         Console.WriteLine("done");
     }
 
+    public void ResetToMain()
+    {
+        using (var repo = new Repository(_path))
+        {
+            ResetHard();
+            Commands.Checkout(repo, repo.Branches["main"], new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+        }
+    }
+
     public void goToCommit(string commitSha)
     {
         Console.WriteLine($"Checking out commit {commitSha}");

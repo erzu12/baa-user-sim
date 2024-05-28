@@ -7,6 +7,8 @@ public enum EventName
     DocumentChangeEvent,
     DocumentCloseEvent,
     DocumentSaveEvent,
+    AddCharcterEvent,
+    DeleteCharcterEvent,
     StartUpEvent,
     GitEvent,
     RunEvent,

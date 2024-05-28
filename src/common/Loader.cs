@@ -50,6 +50,7 @@ public class Loader
     public Event[] Load(string path)
     {
         string text = _fileSystem.File.ReadAllText(path);
+        Console.WriteLine("Read: " + text.Length + " bytes");
         text = text.Insert(0, "[");
         text = text.Remove(text.Length - 2, 2);
         text = text.Insert(text.Length, "]");
@@ -58,12 +59,15 @@ public class Loader
         text = text.Replace("\n", "\\n");
         text = text.Replace("},\\n{", "},\n{");
 
+        Console.WriteLine("text has: " + text.Split("\n").Length + " lines");
+
         var options = new JsonSerializerOptions
         {
             Converters = { new JsonStringEnumConverter()},
             PropertyNameCaseInsensitive = true
         };
         Event[] events = JsonSerializer.Deserialize<Event[]>(text, options) ?? throw new InvalidOperationException("Failed to deserialize events");
+        Console.WriteLine("Deserialized: " + events.Length + " events");
         return events;
     }
 }

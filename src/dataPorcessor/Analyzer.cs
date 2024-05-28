@@ -16,14 +16,14 @@ public class State
         TransitionCount = 0;
     }
 
-    public void AddTransition(EventName state)
+    public void AddTransition(EventName state, int count = 1)
     {
         if (!Transitions.ContainsKey(state))
         {
             Transitions.Add(state, 0);
         }
-        Transitions[state]++;
-        TransitionCount++;
+        Transitions[state] += count;
+        TransitionCount += count;
     }
 }
 
@@ -36,6 +36,10 @@ public class Analyzer
 
     public void Analyze(Event[] events)
     {
+        int totalAdded = 0;
+        bool isAdjacient = false;
+        int totalRemoved = 0;
+        int totalSaved = 0;
         foreach (Event e in events)
         {
             if(e.EventName != EventName.StartUpEvent) {
@@ -47,11 +51,42 @@ public class Analyzer
                 }
                 else
                 {
-                    _currentState.AddTransition(e.EventName);
-                    _currentState = SetState(e.EventName);
+                    if (e.EventName == EventName.DocumentChangeEvent) {
+                        if (e.ChangeOperation == null) {
+                            Console.WriteLine("ChangeOperation is null");
+                            Console.WriteLine(e);
+                        }
+                        int changeCount = e.ChangeOperation.text.Length - int.Parse(e.ChangeOperation.rangeLength);
+                        if (Math.Abs(changeCount) > 1000) { // very large changes skew the data
+                            continue;
+                        }
+                        if (changeCount > 0) {
+                            _currentState.AddTransition(EventName.AddCharcterEvent);
+                            _currentState = SetState(EventName.AddCharcterEvent);
+                            _currentState.AddTransition(EventName.AddCharcterEvent, changeCount - 1);
+                            totalAdded += changeCount;
+                        }
+                        else if (changeCount < 0) {
+                            _currentState.AddTransition(EventName.DeleteCharcterEvent);
+                            _currentState = SetState(EventName.DeleteCharcterEvent);
+                            _currentState.AddTransition(EventName.DeleteCharcterEvent, -changeCount - 1);
+                            totalRemoved -= changeCount;
+                        }
+                    }
+                    else {
+                        _currentState.AddTransition(e.EventName);
+                        _currentState = SetState(e.EventName);
+                    }
                 }
             }
         }
+
+        Console.WriteLine("Total Added: " + totalAdded);
+        Console.WriteLine("Total Removed: " + totalRemoved);
+        Console.WriteLine("Total Saved: " + totalSaved);
+
+        Console.WriteLine("SaveState: " + States[EventName.AddCharcterEvent].Transitions[EventName.AddCharcterEvent] + " " + States[EventName.AddCharcterEvent].TransitionCount);
+        Console.WriteLine("SaveState: " + States[EventName.AddCharcterEvent].Transitions[EventName.DocumentSaveEvent]);
 
         _currentState = SetState(EventName.StartUpEvent);
         _currentState.AddTransition(_firstState ?? EventName.StartUpEvent);

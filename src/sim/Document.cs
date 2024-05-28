@@ -7,6 +7,7 @@ namespace sim;
 class Document
 {
     public string Path { get; set; }
+    private string _repoDir;
     private string _repoDirName;
     public List<string> Content { get; set; }
     public FileDiff Diff { get; set; }
@@ -15,6 +16,7 @@ class Document
     public Document(string repoDir, FileDiff diff, IIDEService ideService)
     {
         _ideService = ideService;
+        _repoDir = repoDir;
         _repoDirName = repoDir.Split('/').Last();
         Path = repoDir + "/" + diff.File;
         Diff = diff;
@@ -42,10 +44,11 @@ class Document
         }
         FileDiff.Line? currentLine = Diff.GetAddedLine();
         Content.Insert(currentLine!.LineNumber, "");
+        var rng = new Random();
         foreach (var e in events)
         {
             Console.WriteLine(e);
-            if(e == EventName.DocumentChangeEvent)
+            if(e == EventName.AddCharcterEvent)
             {
                 var c = currentLine?.GetNextChar();
                 if (c == null) {
@@ -60,9 +63,22 @@ class Document
                 }
                 Content[currentLine!.LineNumber] += c;
             }
+            if(e == EventName.DeleteCharcterEvent) {
+                Console.WriteLine("Deleting");
+                currentLine?.RemoveChar();
+                if (Content[currentLine!.LineNumber].Length > 0)
+                {
+                    Content[currentLine!.LineNumber].Remove(Content[currentLine.LineNumber].Length - 1);
+                }
+            }
             if(e == EventName.DocumentSaveEvent)
             {
                 _ideService.UpdateFile(Path, ContentAsBytes());
+                //while(File.Exists(_repoDir + "/.git/index.lock"))
+                //{
+                    //Console.WriteLine("Waiting for git lock to be released");
+                    //Thread.Sleep(30);
+                //}
             }
             if(e == EventName.RunEvent) {
                 _ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
@@ -109,7 +125,7 @@ class Document
         Console.WriteLine(startLine + " " + startChar + " " + endLine + " " + endChar);
         Console.WriteLine(Content[startLine].Length);
         startChar = Math.Min(startChar, Content[startLine].Length);
-        endChar = Math.Min(endChar, Content[startLine].Length);
+        endChar = Math.Min(endChar, Content[endLine].Length);
         if (startLine == endLine)
         {
             Content[startLine] = Content[startLine].Remove(startChar, endChar - startChar);
