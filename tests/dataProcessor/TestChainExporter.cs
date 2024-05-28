@@ -26,13 +26,13 @@ public class TestChainExporter
         var analyzer = new Analyzer();
         var events = new Event[] {
                 new Event(EventName.DocumentOpenEvent),
-                new Event(EventName.DocumentChangeEvent),
-                new Event(EventName.DocumentChangeEvent),
+                new Event(EventName.DocumentSaveEvent),
+                new Event(EventName.DocumentSaveEvent),
                 new Event(EventName.DocumentCloseEvent),
         };
         analyzer.Analyze(events);
         var mockFileSystem = new Mock<IFileSystem>();
-        mockFileSystem.Setup(x => x.File.WriteAllText("test.json", "{\"DocumentOpenEvent\":{\"Name\":\"DocumentOpenEvent\",\"Transitions\":{\"DocumentChangeEvent\":1}},\"DocumentChangeEvent\":{\"Name\":\"DocumentChangeEvent\",\"Transitions\":{\"DocumentChangeEvent\":0.5,\"DocumentCloseEvent\":0.5}},\"DocumentCloseEvent\":{\"Name\":\"DocumentCloseEvent\",\"Transitions\":{}},\"StartUpEvent\":{\"Name\":\"StartUpEvent\",\"Transitions\":{\"DocumentOpenEvent\":1}}}")).Verifiable();
+        mockFileSystem.Setup(x => x.File.WriteAllText("test.json", "{\"DocumentOpenEvent\":{\"Name\":\"DocumentOpenEvent\",\"Transitions\":{\"DocumentSaveEvent\":1}},\"DocumentSaveEvent\":{\"Name\":\"DocumentSaveEvent\",\"Transitions\":{\"DocumentSaveEvent\":0.5,\"DocumentCloseEvent\":0.5}},\"DocumentCloseEvent\":{\"Name\":\"DocumentCloseEvent\",\"Transitions\":{}},\"StartUpEvent\":{\"Name\":\"StartUpEvent\",\"Transitions\":{\"DocumentOpenEvent\":1}}}")).Verifiable();
         var exporter = new ChainExporter(mockFileSystem.Object);
         exporter.Export(analyzer, "test.json");
         mockFileSystem.Verify();

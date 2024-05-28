@@ -19,11 +19,31 @@ class Program
         //var workDirService = new RemoteWorkDirService(settingsProvider);
         //workDirService.StartNewWorkDir("test", "https://github.com/erzu12/neith_ecs.git", "main").Wait();
         //return;
-        
 
 
-        int minSize = int.Parse(args.ElementAtOrDefault(0) ?? "20");
-        int maxSize = int.Parse(args.ElementAtOrDefault(1) ?? "100");
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: sim <operation> [args]");
+            return;
+        }
+
+        string operation = args[0];
+        float addRatio = 1;
+        int minSize = 20;
+        int maxSize = 100;
+        string temlemetry = "telemetry.json";
+        if (operation == "sim") {
+            addRatio = float.Parse(args.ElementAtOrDefault(1) ?? "0");
+            minSize = int.Parse(args.ElementAtOrDefault(2) ?? "20");
+            maxSize = int.Parse(args.ElementAtOrDefault(3) ?? "100");
+        }
+        else if (operation == "replay") {
+            temlemetry = args.ElementAtOrDefault(1) ?? "telemetry.json";
+        }
+        else {
+            Console.WriteLine("Invalid operation");
+            return;
+        }
 
         var ideService = new IDEService("{219f04f8-0226-4147-be54-60fc789d0610}");
         var repoDir = ideService.GetWorkingDirectory() + "/feasibilitystudy";
@@ -33,13 +53,12 @@ class Program
         //repo.Update("https://github.com/QuestPDF/QuestPDF.git");
         repo.ResetToMain();
         var (Diffs, startCommitTime, endCommitTime) = repo.FindCommitOfSize(minSize, maxSize);
-        // wait for git lock to be released
 
         var loader = new LoadStates();
         var chain = new MarkovChain(loader, "chain_b.json");
 
         var eventLoader = new Loader();
-        var events = eventLoader.Load("telemetry.json");
+        var events = eventLoader.Load(temlemetry);
         events = trimEvents(events, startCommitTime, endCommitTime);
         Console.WriteLine($"Start event: {events[0].EventName}");
 
@@ -50,7 +69,7 @@ class Program
         }
 
         foreach (var doc in docs) {
-            doc.RunSimEvents(chain);
+            doc.RunSimEvents(chain, addRatio);
             //doc.RunRealEvents(events);
         }
         Console.ReadKey();

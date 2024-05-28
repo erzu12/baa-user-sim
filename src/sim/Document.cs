@@ -29,10 +29,10 @@ class Document
         Content = ContentFromBytes(docBytes);
     }
 
-    public void RunSimEvents(MarkovChain chain)
+    public void RunSimEvents(MarkovChain chain, float addRatio)
     {
         int size = Diff.GetCharAddedCount();
-        var events = chain.run(size);
+        var events = chain.run(size, addRatio);
         while (true)
         {
             int currentRemoveLine = Diff.GetRemovedLine();

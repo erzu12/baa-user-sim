@@ -85,9 +85,6 @@ public class Analyzer
         Console.WriteLine("Total Removed: " + totalRemoved);
         Console.WriteLine("Total Saved: " + totalSaved);
 
-        Console.WriteLine("SaveState: " + States[EventName.AddCharcterEvent].Transitions[EventName.AddCharcterEvent] + " " + States[EventName.AddCharcterEvent].TransitionCount);
-        Console.WriteLine("SaveState: " + States[EventName.AddCharcterEvent].Transitions[EventName.DocumentSaveEvent]);
-
         _currentState = SetState(EventName.StartUpEvent);
         _currentState.AddTransition(_firstState ?? EventName.StartUpEvent);
     }
