@@ -1,5 +1,3 @@
-Here is the corrected version of your text:
-
 # IDE User Simulation
 
 This is the repository for the Data Processor and User Simulation applications.
