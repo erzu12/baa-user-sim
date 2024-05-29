@@ -33,6 +33,9 @@ class Document
     {
         int size = Diff.GetCharAddedCount();
         var events = chain.run(size, addRatio);
+        int addEvents = 0;
+        int deleteEvents = 0;
+        int saveEvents = 0;
         while (true)
         {
             int currentRemoveLine = Diff.GetRemovedLine();
@@ -62,6 +65,7 @@ class Document
                     c = currentLine?.GetNextChar();
                 }
                 Content[currentLine!.LineNumber] += c;
+                addEvents++;
             }
             if(e == EventName.DeleteCharcterEvent) {
                 Console.WriteLine("Deleting");
@@ -70,20 +74,24 @@ class Document
                 {
                     Content[currentLine!.LineNumber].Remove(Content[currentLine.LineNumber].Length - 1);
                 }
+                deleteEvents++;
             }
             if(e == EventName.DocumentSaveEvent)
             {
-                _ideService.UpdateFile(Path, ContentAsBytes());
-                //while(File.Exists(_repoDir + "/.git/index.lock"))
+                //if(File.Exists(_repoDir + "/.git/index.lock"))
                 //{
-                    //Console.WriteLine("Waiting for git lock to be released");
-                    //Thread.Sleep(30);
+                    //Thread.Sleep(100);
+                    //File.Delete(_repoDir + "/.git/index.lock");
                 //}
+                _ideService.UpdateFile(Path, ContentAsBytes());
+                saveEvents++;
             }
             if(e == EventName.RunEvent) {
-                _ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
+                //_ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
             }
         }
+
+        Console.WriteLine($"Added: {addEvents}, Deleted: {deleteEvents}, Saved: {saveEvents}");
     }
 
     public void RunRealEvents(Event[] events)
@@ -114,6 +122,11 @@ class Document
             }
             if (e.EventName == EventName.DocumentSaveEvent)
             {
+                if(File.Exists(_repoDir + "/.git/index.lock"))
+                {
+                    Thread.Sleep(100);
+                    File.Delete(_repoDir + "/.git/index.lock");
+                }
                 _ideService.UpdateFile(Path, ContentAsBytes());
             }
             //Console.ReadKey();

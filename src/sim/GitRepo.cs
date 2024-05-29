@@ -58,6 +58,12 @@ class GitRepo
 
     public void ResetHard()
     {
+        // Sometimes the git lock file is not released this is a workaround
+        if(File.Exists(_path + "/.git/index.lock"))
+        {
+            Console.WriteLine("Removing git lock file");
+            File.Delete(_path + "/.git/index.lock");
+        }
         using (var repo = new Repository(_path))
         {
             Commands.Stage(repo, "*");

@@ -26,7 +26,6 @@ public class FileDiff
         
         public string? GetNextChar()
         {
-            Console.WriteLine(_currentChar);
             _currentChar++;
             if (_currentChar < 0)
             {

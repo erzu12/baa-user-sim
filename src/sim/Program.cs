@@ -1,11 +1,8 @@
 ﻿namespace sim;
 
 using System.Threading.Tasks;
-using GrpcBuild;
 using common;
-using DevEnv.Base.Settings;
-using DevEnv.WorkDir.Client;
-using ISettings = DevEnv.WorkDir.Client.ISettings;
+using GrpcBuild;
 
 class Program
 {
@@ -39,14 +36,16 @@ class Program
         }
         else if (operation == "replay") {
             temlemetry = args.ElementAtOrDefault(1) ?? "telemetry.json";
+            minSize = int.Parse(args.ElementAtOrDefault(2) ?? "20");
+            maxSize = int.Parse(args.ElementAtOrDefault(3) ?? "100");
         }
         else {
             Console.WriteLine("Invalid operation");
             return;
         }
 
-        var ideService = new IDEService("{219f04f8-0226-4147-be54-60fc789d0610}");
-        var repoDir = ideService.GetWorkingDirectory() + "/feasibilitystudy";
+        var ideService = new IDEService("{b051c1f8-89b7-4a2f-89da-5c49ae027ac4}");
+        var repoDir = ideService.GetWorkingDirectory() + "/QuestPDF";
 
         Console.WriteLine(repoDir);
         var repo = new GitRepo(repoDir);
@@ -54,13 +53,6 @@ class Program
         repo.ResetToMain();
         var (Diffs, startCommitTime, endCommitTime) = repo.FindCommitOfSize(minSize, maxSize);
 
-        var loader = new LoadStates();
-        var chain = new MarkovChain(loader, "chain_b.json");
-
-        var eventLoader = new Loader();
-        var events = eventLoader.Load(temlemetry);
-        events = trimEvents(events, startCommitTime, endCommitTime);
-        Console.WriteLine($"Start event: {events[0].EventName}");
 
         Document[] docs = new Document[Diffs.Count];
         for (int diff = 0; diff < Diffs.Count; diff++)
@@ -68,14 +60,27 @@ class Program
             docs[diff] = new Document(repoDir, Diffs[diff], ideService);
         }
 
-        foreach (var doc in docs) {
-            doc.RunSimEvents(chain, addRatio);
-            //doc.RunRealEvents(events);
+        if (operation == "sim") {
+            var loader = new LoadStates();
+            var chain = new MarkovChain(loader, "chain_b.json");
+
+            foreach (var doc in docs) {
+                doc.RunSimEvents(chain, addRatio);
+            }
         }
-        Console.ReadKey();
+        else if (operation == "replay") {
+            var eventLoader = new Loader();
+            var events = eventLoader.Load(temlemetry);
+            events = trimEvents(events, startCommitTime, endCommitTime);
+
+            foreach (var doc in docs) {
+                doc.RunRealEvents(events);
+            }
+        }
+        Thread.Sleep(1000);
         repo.ResetHard();
         Thread.Sleep(1000);
-        //ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
+        ideService.Build(BuildSystem.Dotnet, "Source/QuestPDF.sln");
         PrintTotalDiffSize(Diffs);
     }
 
